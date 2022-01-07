@@ -1,7 +1,7 @@
 # CubeIoTGpe1
 Projet réalisé dans le cadre d'étude. réalisation d'une satation météo à l'aide d'un Raspberry PI.
 Adresse GitHub : https://github.com/MDANDEL/CubeIoTGpe1.git
-Discord :  https://discord.gg/TjqxcnGv
+
 
 Clément :  17:00
 Maxime : 18:00
