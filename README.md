@@ -3,14 +3,6 @@ Projet réalisé dans le cadre d'étude. réalisation d'une satation météo à 
 Adresse GitHub : https://github.com/MDANDEL/CubeIoTGpe1.git
 
 
-Clément :  17:00
-Maxime : 18:00
-Stan : 17:00
-Ismail : 18:00
-
-RDV : Jeudi - 18:30 
-
-
 Sujets préférentiel
 - Ismail : back-end /database/
 - Stan : Front/Back end / database
