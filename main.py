@@ -24,7 +24,7 @@ try:
     db = mysql.connector.connect(
         host="localhost",
         user="root",
-        password="****",
+        password="1412",
         db="Weather_station_test"
     )
 except mysql.connector.Error as e:
@@ -33,7 +33,7 @@ except mysql.connector.Error as e:
     db = mysql.connector.connect(
         host="localhost",
         user="root",
-        password="****",
+        password="1412",
     )
     sql = ["CREATE DATABASE weather_station_test;",
            "use weather_station_test;"]
@@ -63,11 +63,11 @@ def get_sql_from_file(filename):
 
 try:
     with db.cursor() as cursor:
-        sql = "SELECT `id` FROM `sonde1` WHERE `id`=%s"
-        cursor.execute(sql, (1))
+        sql = "SELECT `id` FROM `sonde1` WHERE `id`=%s;"
+        cursor.execute(sql)
         result = cursor.fetchone()
         print("Il existe au moins un article dans la DB")
-        if result is None:
+        if result == None:
             print("Les tables de la DB sont vides on importe un peu de contenu")
             import_sql_filename = "./db_with_sampledata.sql"
             request_list = get_sql_from_file(import_sql_filename)
@@ -77,7 +77,7 @@ try:
                         print(sql_request)
                         cursor.execute(sql_request + ';')
                         db.commit()
-except mysql.connector.Error():
+except mysql.connector.ProgrammingError:
     print("La DB est vide")
     import_sql_filename = "./db_schema.sql"
     request_list = get_sql_from_file(import_sql_filename)
@@ -152,9 +152,9 @@ class temperature(Resource):
         """
         Retourner un utilisateur pour un ID donné
         """
-        sql = "SELECT `id`, CAST(`temperature` as double) as temperature, CAST(`humidity` as double) as humidity, CAST(`added` as CHAR) as added FROM `sonde1` WHERE `id`=%s;"
-        with db.cursor(mysql.connector.di) as cursor:
-            cursor.execute(sql, id)
+        sql = "SELECT `id`, CAST(`temperature` as double) as temperature, CAST(`humidity` as double) as humidity, CAST(`added` as CHAR) as added FROM `sonde1` WHERE `id`=%s"
+        with db.cursor(dictionary=True) as cursor:
+            cursor.execute(sql, (id,))
             result = cursor.fetchone()
         return result
 
@@ -165,8 +165,8 @@ class temperature(Resource):
         """
         Supprimer un utilisateur pour un ID donné
         """
-        sql = "DELETE from authors WHERE id=%s RETURNING id"
-        with db.cursor(pymysql.cursors.DictCursor) as cursor:
+        sql = "DELETE from sonde1 WHERE id=%s RETURNING id"
+        with db.cursor(dictionary=True) as cursor:
             result = cursor.execute(sql, id)
             db.commit()
         if int(result) > 0:
