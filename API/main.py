@@ -25,7 +25,7 @@ except mysql.connector.Error as e:
         user="root",
         password="1412",
     )
-    sql = ["CREATE DATABASE weather_station_test;",
+    sql = ["CREATE DATABASE weather_station;",
            "use weather_station_test;"]
     with db.cursor() as cursor:
         for query in sql:
@@ -87,17 +87,19 @@ class Ping(Resource):
         return {'response': 'pong'}, 200
 
 
-@api.route("/api/v1/temperature/<int:id>")
+@api.route("/api/v1/esp", methods=['POST'])
 class temperature(Resource):
-    def get(self, id):
-        """
-        Retourner un utilisateur pour un ID donné
-        """
-        sql = "SELECT `id`, CAST(`temperature` as double) as temperature, CAST(`humidity` as double) as humidity, CAST(`added` as CHAR) as added FROM weather_station_test.`sonde1` WHERE `id`=%s"
+    def post(self):
+        """Supprimer une ligne de données"""
+        temp = api.payload['temperature']
+        hum = api.payload['humidity']
+        #sql = "INSERT INTO weather_station_test.`sonde1` VALUES (`temperature`, `humidity`)"
+        sql = "INSERT INTO weather_station_test.`sonde1` (`temperature`, `humidity`) VALUES ("+str(temp)+", "+str(hum)+")"
         with db.cursor(dictionary=True) as cursor:
-            cursor.execute(sql, (id,))
-            result = cursor.fetchone()
-        return result
+            result = cursor.execute(sql)
+            db.commit()
+            last_id = cursor.lastrowid
+        return {'user created with id': str(last_id)}, 200
 
 
 @api.route("/api/v1/delete/temperature/<int:id>", methods=['DELETE'])
