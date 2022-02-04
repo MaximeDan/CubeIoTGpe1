@@ -52,7 +52,7 @@ def fitlrer_Humidite(id):
     try:
         conn = mysql.connect()
         cursor_hum = conn.cursor(pymysql.cursors.DictCursor)
-        cursor_hum.execute("SELECT id, farenheit, humidite, date, capture FROM donnees WHERE id =%s", id)
+        cursor_hum.execute("SELECT id, humidite, date, capture FROM donnees WHERE id =%s", id)
         empRow = cursor_hum.fetchone()
         response_filt_hum = jsonify(empRow)
         response_filt_hum.status_code = 200
@@ -233,7 +233,6 @@ def supprimer_capteur(id):
 @app.route('/api/v1/user/ajouter/', methods=['POST'])
 def ajouter_utilisateur():
     _json = request.json
-    _user = _json['nom_dutilisateur']
     _nom = _json['nom']
     _prenom = _json['prenom']
     _email = _json['email']
@@ -241,9 +240,9 @@ def ajouter_utilisateur():
     _type = _json['type']
     _color = _json['color']
 
-    if _user and _nom and _prenom and _email and _password and _type and _color and request.method == 'POST':
-        sqlQuery = "INSERT INTO utilisateurs(nom_dutilisateur, nom, prenom, email, mot_de_passe, type, color) VALUES(%s, %s, %s, %s,%s, %s, %s)"
-        bindData_add_user = (_user, _nom, _prenom, _email,  _password, _type, _color)
+    if  _nom and _prenom and _email and _password and _type and _color and request.method == 'POST':
+        sqlQuery = "INSERT INTO utilisateurs( nom, prenom, email, mot_de_passe, type, color) VALUES( %s, %s, %s,%s, %s, %s)"
+        bindData_add_user = (_nom, _prenom, _email,  _password, _type, _color)
         conn = mysql.connect()
         cursor_add_user = conn.cursor()
         cursor_add_user.execute(sqlQuery, bindData_add_user)
@@ -260,7 +259,7 @@ def lire_utilisateurs():
     try:
         conn = mysql.connect()
         cursor_read_user = conn.cursor(pymysql.cursors.DictCursor)
-        cursor_read_user.execute("SELECT id, nom_dutilisateur, nom, prenom, email, mot_de_passe, type, color FROM utilisateurs")
+        cursor_read_user.execute("SELECT id, nom, prenom, email, mot_de_passe, type, color FROM utilisateurs")
         empRows = cursor_read_user.fetchall()
         response_read_user = jsonify(empRows)
         response_read_user.status_code = 200
@@ -278,7 +277,7 @@ def filtrer_utilisateur(id):
         conn = mysql.connect()
         cursor_filt_user = conn.cursor(pymysql.cursors.DictCursor)
         cursor_filt_user.execute(
-            "SELECT id, nom_dutilisateur, nom, prenom, email, mot_de_passe, type, color FROM utilisateurs WHERE id =%s", id)
+            "SELECT id, nom, prenom, email, mot_de_passe, type, color FROM utilisateurs WHERE id =%s", id)
         empRow = cursor_filt_user.fetchone()
         response_filt_user = jsonify(empRow)
         response_filt_user.status_code = 200
@@ -295,7 +294,6 @@ def modifier_utilisateur():
     try:
         _json = request.json
         _id = _json['id']
-        _user = _json['nom_dutilisateur']
         _nom = _json['nom']
         _prenom = _json['prenom']
         _email = _json['email']
@@ -303,9 +301,9 @@ def modifier_utilisateur():
         _type = _json['type']
         _color = _json['color']
 
-        if _id and _user and _nom and _prenom and _email and _password and _type and _color and request.method == 'PUT':
-            sqlQuery = "UPDATE utilisateurs SET id=%s, nom_dutilisateur=%s, nom=%s, prenom=%s, email=%s, mot_de_passe=%s, type=%s, color=%s WHERE id=%s"
-            bindData_mod_use = (_id, _user, _nom, _prenom, _email, _password, _type, _color)
+        if _id and _nom and _prenom and _email and _password and _type and _color and request.method == 'PUT':
+            sqlQuery = "UPDATE `utilisateurs` SET `id`= %s, `nom` = %s, `email` = %s, `mot_de_passe` = %s, `type` = %s, `color` = %s WHERE `utilisateurs`.`id` = %s"
+            bindData_mod_use = (_id, _nom, _prenom, _email, _password, _type, _color)
             conn = mysql.connect()
             cursor_mod_use = conn.cursor()
             cursor_mod_use.execute(sqlQuery, bindData_mod_use)
@@ -327,7 +325,7 @@ def supprimer_utilisateur(id):
     try:
         conn = mysql.connect()
         cursor_sup_use = conn.cursor()
-        cursor_sup_use.execute("DELETE FROM utilisateurs WHERE id=%s  type='adminisrateur'", id)
+        cursor_sup_use.execute("DELETE FROM utilisateurs WHERE id=%s", id)
         conn.commit()
         response_sup_use = jsonify('Données ont été supprimées avec succès!')
         response_sup_use.status_code = 200
@@ -354,4 +352,4 @@ def not_found(error=None):
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host='192.168.43.60', port=5000)
