@@ -151,8 +151,8 @@ def get_measures(mode="all", measures=10, interval=1):
         humi_data.append(s.humidity())
         measures -= 1
         time.sleep(interval)
-    print({"Moyenne de temperature":temp_data})
-    print({"Moyenne d\'humidite":humi_data})
+    print({"all temp":temp_data})
+    print({"all hum":humi_data})
     temperature = round(sum(temp_data)/len(temp_data),1)
     humidite = round(sum(humi_data)/len(humi_data),1)
     if mode == "all":
@@ -162,7 +162,7 @@ def get_measures(mode="all", measures=10, interval=1):
     elif mode == "humidite":
         data = {"humidite": humidite}
     else:
-        data = {"temperature": temperature, "humidite": humidite}
+        data = {"average temp": temperature, "average hum": humidite}
     return data
 
 
