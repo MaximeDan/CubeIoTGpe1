@@ -19,7 +19,7 @@ Si vous envisagez d'implémenter l'API Flask RESTFUL pour récolter les données
 Nous couvrirons cette documentation avec un exemple en direct avec des méthodes C.R.U.D HTTP telles que (GET/ POST/ PUT/ DELETE) pour implémenter l'API Python RESTFUL avec des opérations CRUD.
 
 
-Prérequis
+- Prérequis
 Pour pouvoir manipuler l’API que nous allons créer par la suite, et Nous espérons que vous avez installé Python sur votre Windows ou Linux avec Python en l’occurrence Flask et ses packages. Ici, nous utilisons la version Python 3.10. Nous importer dans notre projet les modules et packages de flask et mysql .
  
 
@@ -41,7 +41,8 @@ Ensuite l’importer depuis votre gestionnaire de DB ou utiliser le terminal con
  
 
 # Étape 2 : Importer le module Flask
-Comme nous gérons la fonctionnalité de l'API REST à l'aide de Flask et MySQL, nous aurons donc besoin des deux modules. Le module Flask fonctionne comme un framework Web tandis que le module MySQL nécessite d'établir une connexion avec la base de données MySQL. Nous allons donc créer le app.py script Python, importer le module flask et créer l' flask instance à utiliser avec MySQL module.
+
++ Comme nous gérons la fonctionnalité de l'API REST à l'aide de Flask et MySQL, nous aurons donc besoin des deux modules. Le module Flask fonctionne comme un framework Web tandis que le module MySQL nécessite d'établir une connexion avec la base de données MySQL. Nous allons donc créer le app.py script Python, importer le module flask et créer l' flask instance à utiliser avec MySQL module.
 ----------------------------------------------------------------------------------------
 
 from flask import Flask               # Pour avoir accès au module Flask
@@ -56,164 +57,166 @@ Nous allons créer config.py un fichier Python pour initialiser les détails de 
 
 De l'application d’importation de l'application
 -----------------------------------------------------------------------------------------
-from app import app          # Importer le fichier d'instance Flask app.py
-from config import mysql      # importer le fichier de la connexion 
-import pymysql          # importer le package pour gérer la connexion MySql
-from flask import jsonify # importer le package de JSON depuis flask
-from flask import request # importer le package des requêtes CRUD depuis Flask
+	from app import app          # Importer le fichier d'instance Flask app.py
+	from config import mysql      # importer le fichier de la connexion 
+	import pymysql          # importer le package pour gérer la connexion MySql
+	from flask import jsonify # importer le package de JSON depuis flask
+	from flask import request # importer le package des requêtes CRUD depuis Flask
 ------------------------------------------------------------------------------------------
 
 # Étape 4 : Créer une opération CRUD d'API REST
 Nous allons créer un api_executer.py script et importer les modules app et config Nous nous connecterons à la base de données MySQL et implémenterons les opérations CRUD en définissant tous les URL REST. Ici, nous avons utilisé POST la méthode HTTP pour ajouter de nouveaux enregistrements à la base de données. Nous avons utilisé GET la méthode HTTP pour obtenir tous les enregistrements ou un enregistrement individuel ou globale et utilisé PUT la méthode HTTP pour la mise à jour des enregistrements. DELETE Méthode HTTP également implémentée pour supprimer l'enregistrement. S'il n'y a pas d'enregistrement trouvé, il a défini la méthode 404 pour gérer l'erreur introuvable.
-from app import app          # Importer le fichier d'instance Flask app.py
-from config import mysql      # importer le fichier de la connexion
-import pymysql                # importer le package pour gérer la connexion MySql
-from flask import jsonify     # importer le package de JSON depuis flask
-from flask import request     # importer le package des requêtes CRUD depuis Flask
 
- // Add a new data into the database rows [table name : donnees]
-@app.route('/api/v1/ajouter/', methods=['POST'])
-def ajouter_donnees():
+	from app import app          # Importer le fichier d'instance Flask app.py
+	from config import mysql      # importer le fichier de la connexion
+	import pymysql                # importer le package pour gérer la connexion MySql
+	from flask import jsonify     # importer le package de JSON depuis flask
+	from flask import request     # importer le package des requêtes CRUD depuis Flask
 
-    _json = request.json
-    _farenheit = _json['farenheit']
-    _temperature = _json['temperature']
-    _humidity = _json['humidite']
-    _capteur = _json['capture']
+	 // Add a new data into the database rows [table name : donnees]
+	@app.route('/api/v1/ajouter/', methods=['POST'])
+	def ajouter_donnees():
 
-    if  _temperature and _humidity  and _capteur and _farenheit and request.method == 'POST':
-        sqlQuery = "INSERT INTO donnees( temperature, humidite, capture,farenheit) VALUES(%s, %s, %s, %s)"
-        bindData_add_don = ( _temperature, _humidity, _capteur,_farenheit)
-        conn = mysql.connect()
-        cursor_add_don = conn.cursor()
-        cursor_add_don.execute(sqlQuery, bindData_add_don)
-        conn.commit()
-        response_add_don = jsonify('les données ont été enregistrées avec succès !')
-        response_add_don.status_code = 200
-        return response_add_don
-    else:
-        return not_found()
+	    _json = request.json
+	    _farenheit = _json['farenheit']
+	    _temperature = _json['temperature']
+	    _humidity = _json['humidite']
+	    _capteur = _json['capture']
 
-
-
-// fetch all rows from  database concernning the table utilisateurs [table name : donnees]
-@app.route('/api/v1/donnees/')
-def lire_donnees():
-    try:
-        conn = mysql.connect()
-        cursor_read_don = conn.cursor(pymysql.cursors.DictCursor)
-        cursor_read_don.execute("SELECT id, farenheit, temperature, humidite, date, capture FROM donnees")
-        empRows = cursor_read_don.fetchall()
-        response_read_don = jsonify(empRows)
-        response_read_don.status_code = 200
-        return response_read_don
-    except Exception as e:
-        print(e)
-    finally:
-        cursor_read_don.close()
-        conn.close()
-
-
-@app.route('/api/v1/donnees/humidite/<int:id>')
-def fitlrer_Humidite(id):
-    try:
-        conn = mysql.connect()
-        cursor_hum = conn.cursor(pymysql.cursors.DictCursor)
-        cursor_hum.execute("SELECT id, humidite, date, capture FROM donnees WHERE id =%s", id)
-        empRow = cursor_hum.fetchone()
-        response_filt_hum = jsonify(empRow)
-        response_filt_hum.status_code = 200
-        return response_filt_hum
-    except Exception as e:
-        print(e)
-    finally:
-        cursor_hum.close()
-        conn.close()
-
-
-@app.route('/api/v1/donnees/temperature/<int:id>')
-def filtrer_temperature(id):
-    try:
-        conn = mysql.connect()
-        cursor_temp = conn.cursor(pymysql.cursors.DictCursor)
-        cursor_temp.execute("SELECT id, farenheit, temperature, date, capture FROM donnees WHERE id =%s", id)
-        empRow = cursor_temp.fetchone()
-        response_filt_temp = jsonify(empRow)
-        response_filt_temp.status_code = 200
-        return response_filt_temp
-    except Exception as e:
-        print(e)
-    finally:
-        cursor_temp.close()
-        conn.close()
-
-
-@app.route('/api/v1/modifier/', methods=['PUT'])
-def modifier_donnees():
-    try:
-        _json = request.json
-        _farenheit = _json['farenheit']
-        _id = _json['id']
-        _temperature = _json['temperature']
-        _humidity = _json['humidite']
-        _date = _json['date']
-        _capteur = _json['capture']
-        if _id and _farenheit and _temperature and _humidity and _date and _capteur and request.method == 'PUT':
-            sqlQuery = "UPDATE donnees SET farenheit=%s, temperature=%s, humidite=%s, date=%s, capture=%s WHERE id=%s"
-            bindData_mod_don = (_id, _farenheit, _temperature, _humidity, _date, _capteur)
-            conn = mysql.connect()
-            cursor_mod_don = conn.cursor()
-            cursor_mod_don.execute(sqlQuery, bindData_mod_don)
-            conn.commit()
-            response_mod_don = jsonify('les données ont été modifié avec succès')
-            response_mod_don.status_code = 200
-            return response_mod_don
-        else:
-            return not_found()
-    except Exception as e: \
-            print(e)
-    finally:
-        cursor_mod_don.close()
-        conn.close()
-
-
-@app.route('/api/v1/supprimer/<int:id>', methods=['DELETE'])
-def supprimer_donnees(id):
-    try:
-        conn = mysql.connect()
-        cursor_sup_don = conn.cursor()
-        cursor_sup_don.execute("DELETE FROM donnees WHERE id=%s", id)
-        conn.commit()
-        response_sup_don = jsonify('Données ont été supprimées avec succès!')
-        response_sup_don.status_code = 200
-        return response_sup_don
-    except Exception as e:
-        print(e)
-    finally:
-        cursor_sup_don.close()
-        conn.close()
+	    if  _temperature and _humidity  and _capteur and _farenheit and request.method == 'POST':
+		sqlQuery = "INSERT INTO donnees( temperature, humidite, capture,farenheit) VALUES(%s, %s, %s, %s)"
+		bindData_add_don = ( _temperature, _humidity, _capteur,_farenheit)
+		conn = mysql.connect()
+		cursor_add_don = conn.cursor()
+		cursor_add_don.execute(sqlQuery, bindData_add_don)
+		conn.commit()
+		response_add_don = jsonify('les données ont été enregistrées avec succès !')
+		response_add_don.status_code = 200
+		return response_add_don
+	    else:
+		return not_found()
 
 
 
-@app.errorhandler(404)
-def not_found(error=None):
-    message = {
-        'status': 404,
-        'message': 'Enregistrement introuvable mais l\'api marche : ' + request.url,
-    }
-    response_error = jsonify(message)
-    response_error.status_code = 404
-    return response_error
+	// fetch all rows from  database concernning the table utilisateurs [table name : donnees]
+	@app.route('/api/v1/donnees/')
+	def lire_donnees():
+	    try:
+		conn = mysql.connect()
+		cursor_read_don = conn.cursor(pymysql.cursors.DictCursor)
+		cursor_read_don.execute("SELECT id, farenheit, temperature, humidite, date, capture FROM donnees")
+		empRows = cursor_read_don.fetchall()
+		response_read_don = jsonify(empRows)
+		response_read_don.status_code = 200
+		return response_read_don
+	    except Exception as e:
+		print(e)
+	    finally:
+		cursor_read_don.close()
+		conn.close()
 
 
-if __name__ == "__main__":
-   # app.run(host='0.0.0.0', port=5000) # Si vous voulez personnaliser 
-	app.run()
+	@app.route('/api/v1/donnees/humidite/<int:id>')
+	def fitlrer_Humidite(id):
+	    try:
+		conn = mysql.connect()
+		cursor_hum = conn.cursor(pymysql.cursors.DictCursor)
+		cursor_hum.execute("SELECT id, humidite, date, capture FROM donnees WHERE id =%s", id)
+		empRow = cursor_hum.fetchone()
+		response_filt_hum = jsonify(empRow)
+		response_filt_hum.status_code = 200
+		return response_filt_hum
+	    except Exception as e:
+		print(e)
+	    finally:
+		cursor_hum.close()
+		conn.close()
+
+
+	@app.route('/api/v1/donnees/temperature/<int:id>')
+	def filtrer_temperature(id):
+	    try:
+		conn = mysql.connect()
+		cursor_temp = conn.cursor(pymysql.cursors.DictCursor)
+		cursor_temp.execute("SELECT id, farenheit, temperature, date, capture FROM donnees WHERE id =%s", id)
+		empRow = cursor_temp.fetchone()
+		response_filt_temp = jsonify(empRow)
+		response_filt_temp.status_code = 200
+		return response_filt_temp
+	    except Exception as e:
+		print(e)
+	    finally:
+		cursor_temp.close()
+		conn.close()
+
+
+	@app.route('/api/v1/modifier/', methods=['PUT'])
+	def modifier_donnees():
+	    try:
+		_json = request.json
+		_farenheit = _json['farenheit']
+		_id = _json['id']
+		_temperature = _json['temperature']
+		_humidity = _json['humidite']
+		_date = _json['date']
+		_capteur = _json['capture']
+		if _id and _farenheit and _temperature and _humidity and _date and _capteur and request.method == 'PUT':
+		    sqlQuery = "UPDATE donnees SET farenheit=%s, temperature=%s, humidite=%s, date=%s, capture=%s WHERE id=%s"
+		    bindData_mod_don = (_id, _farenheit, _temperature, _humidity, _date, _capteur)
+		    conn = mysql.connect()
+		    cursor_mod_don = conn.cursor()
+		    cursor_mod_don.execute(sqlQuery, bindData_mod_don)
+		    conn.commit()
+		    response_mod_don = jsonify('les données ont été modifié avec succès')
+		    response_mod_don.status_code = 200
+		    return response_mod_don
+		else:
+		    return not_found()
+	    except Exception as e: \
+		    print(e)
+	    finally:
+		cursor_mod_don.close()
+		conn.close()
+
+
+	@app.route('/api/v1/supprimer/<int:id>', methods=['DELETE'])
+	def supprimer_donnees(id):
+	    try:
+		conn = mysql.connect()
+		cursor_sup_don = conn.cursor()
+		cursor_sup_don.execute("DELETE FROM donnees WHERE id=%s", id)
+		conn.commit()
+		response_sup_don = jsonify('Données ont été supprimées avec succès!')
+		response_sup_don.status_code = 200
+		return response_sup_don
+	    except Exception as e:
+		print(e)
+	    finally:
+		cursor_sup_don.close()
+		conn.close()
+
+
+
+	@app.errorhandler(404)
+	def not_found(error=None):
+	    message = {
+		'status': 404,
+		'message': 'Enregistrement introuvable mais l\'api marche : ' + request.url,
+	    }
+	    response_error = jsonify(message)
+	    response_error.status_code = 404
+	    return response_error
+
+
+	if __name__ == "__main__":
+	   # app.run(host='0.0.0.0', port=5000) # Si vous voulez personnaliser 
+		app.run()
 
 
    
 # Étape 5 : exécuter l'application
-Maintenant, nous allons aller dans le répertoire du projet API eT exécuter la commande python api_executer.py et le serveur démarrera sur le port par défaut 5000. Nous allons maintenant utiliser Postman pour exécuter notre API Python RESTFUL avec les méthodes (POST, GET, PUT ou DELETE) pour le tester.
+
++ Maintenant, nous allons aller dans le répertoire du projet API eT exécuter la commande python api_executer.py et le serveur démarrera sur le port par défaut 5000. Nous allons maintenant utiliser Postman pour exécuter notre API Python RESTFUL avec les méthodes (POST, GET, PUT ou DELETE) pour le tester.
 
 	* Pour exécuter depuis linux :
 	+ chmod u+x ./chemin_vers_fichier/api_executer.py 
@@ -247,37 +250,38 @@ http : //127.0.0.1:5000/donnee/delete/1
 La réponse sera le message de suppression de l'enregistrement des données.
  
 Retrouver la liste de toutes les requêtes possible ici.
-http://127.0.0.1:5000/api/v1/utilisateurs/
------------------------------------------------------------------
-http://127.0.0.1:5000/api/v1/utilisateur/ajouter/
------------------------------------------------------------------
-http://127.0.0.1:5000/api/v1/utilisateur /modifier
------------------------------------------------------------------
-http://127.0.0.1:5000/api/v1/utilisateur/supprimer/${id}
------------------------------------------------------------------
-http://127.0.0.1:5000/api/v1/donnees/
------------------------------------------------------------------
-http://127.0.0.1:5000/api/v1/donnees/humidite/{id}
------------------------------------------------------------------
-http://127.0.0.1:5000/api/v1/donnees/temperature/{id}
------------------------------------------------------------------
-http://127.0.0.1:5000/api/v1/donnee/ajouter/
------------------------------------------------------------------
-http://127.0.0.1:5000/api/v1/donnee/modifier
------------------------------------------------------------------
-http://127.0.0.1:5000/api/v1/donnee/supprimer/${id}
------------------------------------------------------------------
-http://127.0.0.1:5000/api/v1/capteurs/
------------------------------------------------------------------
-http://127.0.0.1:5000/api/v1/capteur/ajouter/
------------------------------------------------------------------
-http://127.0.0.1:5000/api/v1/capteur/modifier
---------27.0.0.1-------------------------------------------------
-http://127.0.0.1:5000/api/v1/capteur/supprimer/${id}
------------------------------------------------------------------
+
+		http://127.0.0.1:5000/api/v1/utilisateurs/
+		-----------------------------------------------------------------
+		http://127.0.0.1:5000/api/v1/utilisateur/ajouter/
+		-----------------------------------------------------------------
+		http://127.0.0.1:5000/api/v1/utilisateur /modifier
+		-----------------------------------------------------------------
+		http://127.0.0.1:5000/api/v1/utilisateur/supprimer/${id}
+		-----------------------------------------------------------------
+		http://127.0.0.1:5000/api/v1/donnees/
+		-----------------------------------------------------------------
+		http://127.0.0.1:5000/api/v1/donnees/humidite/{id}
+		-----------------------------------------------------------------
+		http://127.0.0.1:5000/api/v1/donnees/temperature/{id}
+		-----------------------------------------------------------------
+		http://127.0.0.1:5000/api/v1/donnee/ajouter/
+		-----------------------------------------------------------------
+		http://127.0.0.1:5000/api/v1/donnee/modifier
+		-----------------------------------------------------------------
+		http://127.0.0.1:5000/api/v1/donnee/supprimer/${id}
+		-----------------------------------------------------------------
+		http://127.0.0.1:5000/api/v1/capteurs/
+		-----------------------------------------------------------------
+		http://127.0.0.1:5000/api/v1/capteur/ajouter/
+		-----------------------------------------------------------------
+		http://127.0.0.1:5000/api/v1/capteur/modifier
+		--------27.0.0.1-------------------------------------------------
+		http://127.0.0.1:5000/api/v1/capteur/supprimer/${id}
+		-----------------------------------------------------------------
 
 
 
-Vous avez terminé notre documentations sur l'API Python RESTFUlL en utilisant Flask et MySQL avec des exemples sur ma machine. Vous pouvez ensuite l'implémenter dans votre projet en fonction de vos besoins. Si vous avez des questions, vous pouvez soumettre me les envoyer via ma boîte mail : ismail.mouyahada@viacesi.fr
+"Vous avez terminé notre documentations sur l'API Python RESTFUlL en utilisant Flask et MySQL avec des exemples sur ma machine. Vous pouvez ensuite l'implémenter dans votre projet en fonction de vos besoins. Si vous avez des questions, vous pouvez soumettre me les envoyer via ma boîte mail : ismail.mouyahada@viacesi.fr"
 
 Projet réalisé le : 04-02-2022
